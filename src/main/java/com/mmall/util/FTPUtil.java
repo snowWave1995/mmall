@@ -20,12 +20,16 @@ public class FTPUtil {
     private static String ftpUser = PropertiesUtil.getProperty("ftp.user");
     private static String ftpPass = PropertiesUtil.getProperty("ftp.pass");
 
+
+
     public FTPUtil(String ip,int port,String user,String pwd){
         this.ip = ip;
         this.port = port;
         this.user = user;
         this.pwd = pwd;
     }
+
+    //判断批量上传是否成功
     public static boolean uploadFile(List<File> fileList) throws IOException {
         FTPUtil ftpUtil = new FTPUtil(ftpIp,21,ftpUser,ftpPass);
         logger.info("开始连接ftp服务器");
@@ -35,9 +39,11 @@ public class FTPUtil {
     }
 
 
+    //上传的具体逻辑
     private boolean uploadFile(String remotePath,List<File> fileList) throws IOException {
         boolean uploaded = true;
         FileInputStream fis = null;
+
         //连接FTP服务器
         if(connectServer(this.ip,this.port,this.user,this.pwd)){
             try {
@@ -46,6 +52,7 @@ public class FTPUtil {
                 ftpClient.setControlEncoding("UTF-8");
                 ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 ftpClient.enterLocalPassiveMode();
+                //上传文件
                 for(File fileItem : fileList){
                     fis = new FileInputStream(fileItem);
                     ftpClient.storeFile(fileItem.getName(),fis);
@@ -71,7 +78,7 @@ public class FTPUtil {
         ftpClient = new FTPClient();
         try {
             ftpClient.connect(ip);
-            isSuccess = ftpClient.login(user,pwd);
+            isSuccess = ftpClient.login(user,pwd);//登录
         } catch (IOException e) {
             logger.error("连接FTP服务器异常",e);
         }

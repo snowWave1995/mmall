@@ -16,10 +16,11 @@ public interface UserMapper {
 
     int updateByPrimaryKey(User record);
 
-    int checkUsername(String username);
+    int checkUsername(String username);//检查用户名数量
 
     int checkEmail(String email);
 
+    //mybatis传参数时多个参数用@Param注解，指定顺序
     User selectLogin(@Param("username") String username, @Param("password") String password);
 
     String selectQuestionByUsername(String username);

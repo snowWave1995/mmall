@@ -59,6 +59,12 @@ public class CategoryServiceImpl implements ICategoryService {
         return ServerResponse.createByErrorMessage("更新品类名字失败");
     }
 
+
+    /**
+     * 只查询parentId为某个值的品类  select * from table where parentId=**
+     * @param categoryId
+     * @return
+     */
     public ServerResponse<List<Category>> getChildrenParallelCategory(Integer categoryId){
         List<Category> categoryList = categoryMapper.selectCategoryChildrenByParentId(categoryId);
         if(CollectionUtils.isEmpty(categoryList)){
@@ -88,13 +94,18 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
 
-    //递归算法,算出子节点
+    /**
+     * 递归算法,算出子节点，用set排重，对象是category,所以要重写hashcode和equals方法，重写时，id相同就认为相同
+     * @param categorySet
+     * @param categoryId
+     * @return
+     */
     private Set<Category> findChildCategory(Set<Category> categorySet ,Integer categoryId){
         Category category = categoryMapper.selectByPrimaryKey(categoryId);
         if(category != null){
             categorySet.add(category);
         }
-        //查找子节点,递归算法一定要有一个退出的条件
+        //查找子节点,递归算法一定要有一个退出的条件，list如果为空，就不会进入foreach,就直接返回，递归结束
         List<Category> categoryList = categoryMapper.selectCategoryChildrenByParentId(categoryId);
         for(Category categoryItem : categoryList){
             findChildCategory(categorySet,categoryItem.getId());

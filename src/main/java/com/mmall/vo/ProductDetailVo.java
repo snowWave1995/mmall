@@ -21,7 +21,7 @@ public class ProductDetailVo {
     private String updateTime;
 
 
-    private String imageHost;
+    private String imageHost;//图片服务器URL前缀，加上图片地址，可获得图片
     private Integer parentCategoryId;
 
 

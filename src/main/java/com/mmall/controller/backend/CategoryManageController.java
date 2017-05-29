@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 /**
  * Created by snowWave
  */
-@Controller
+@Controller//分类
 @RequestMapping("/manage/category")
 public class CategoryManageController {
 
@@ -28,6 +28,14 @@ public class CategoryManageController {
     @Autowired
     private ICategoryService iCategoryService;
 
+
+    /**
+     * 增加品类
+     * @param session
+     * @param categoryName
+     * @param parentId
+     * @return
+     */
     @RequestMapping("add_category.do")
     @ResponseBody
     public ServerResponse addCategory(HttpSession session,String categoryName,@RequestParam(value = "parentId",defaultValue = "0") int parentId){
@@ -46,6 +54,13 @@ public class CategoryManageController {
         }
     }
 
+    /**
+     * 更新品类名称
+     * @param session
+     * @param categoryId
+     * @param categoryName
+     * @return
+     */
     @RequestMapping("set_category_name.do")
     @ResponseBody
     public ServerResponse setCategoryName(HttpSession session,Integer categoryId,String categoryName){
@@ -61,6 +76,12 @@ public class CategoryManageController {
         }
     }
 
+    /**
+     * 无递归查询子节点(平级)
+     * @param session
+     * @param categoryId
+     * @return
+     */
     @RequestMapping("get_category.do")
     @ResponseBody
     public ServerResponse getChildrenParallelCategory(HttpSession session,@RequestParam(value = "categoryId" ,defaultValue = "0") Integer categoryId){
@@ -76,6 +97,13 @@ public class CategoryManageController {
         }
     }
 
+
+    /**
+     * 递归查询当前节点及子节点
+     * @param session
+     * @param categoryId
+     * @return
+     */
     @RequestMapping("get_deep_category.do")
     @ResponseBody
     public ServerResponse getCategoryAndDeepChildrenCategory(HttpSession session,@RequestParam(value = "categoryId" ,defaultValue = "0") Integer categoryId){
@@ -85,7 +113,7 @@ public class CategoryManageController {
         }
         if(iUserService.checkAdminRole(user).isSuccess()){
             //查询当前节点的id和递归子节点的id
-//            0->10000->100000
+            //0->10000->100000
             return iCategoryService.selectCategoryAndChildrenById(categoryId);
 
         }else{

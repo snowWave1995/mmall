@@ -6,7 +6,6 @@ import java.math.BigDecimal;
  * Created by snowWave
  */
 public class CartProductVo {
-
 //结合了产品和购物车的一个抽象对象
 
     private Integer id;

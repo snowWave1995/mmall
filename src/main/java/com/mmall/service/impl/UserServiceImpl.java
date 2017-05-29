@@ -27,19 +27,20 @@ public class UserServiceImpl implements IUserService {
     @Override
     public ServerResponse<User> login(String username, String password){
 
+
         int resultCount = userMapper.checkUsername(username);
         if(resultCount == 0){
             return ServerResponse.createByErrorMessage("用户名不存在");
         }
 
-        //todo 密码登录MD5
+        //密码登录MD5
 
         String md5Password = MD5Util.MD5EncodeUtf8(password);
         User user = userMapper.selectLogin(username,md5Password);
         if(user == null){
             return ServerResponse.createByErrorMessage("密码错误");
         }
-        user.setPassword(StringUtils.EMPTY);
+        user.setPassword(StringUtils.EMPTY);//返回值密码置空
         return ServerResponse.createBySuccess("登录成功",user);
 
     }
@@ -64,6 +65,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     public ServerResponse<String> checkValid(String str,String type){
+        //type不为空
         if(org.apache.commons.lang3.StringUtils.isNotBlank(type)){
             //开始校验
             if(Const.USERNAME.equals(type)){
@@ -113,7 +115,7 @@ public class UserServiceImpl implements IUserService {
 
     public ServerResponse<String> forgetResetPassword(String username,String passwordNew,String forgetToken){
         if(org.apache.commons.lang3.StringUtils.isBlank(forgetToken)){
-            return ServerResponse.createByErrorMessage("参数错误,token需要传递");
+            return ServerResponse.createByErrorMessage("参数错误,需要传递token");
         }
         ServerResponse validResponse = this.checkValid(username,Const.USERNAME);
         if(validResponse.isSuccess()){
@@ -126,6 +128,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         if(org.apache.commons.lang3.StringUtils.equals(forgetToken,token)){
+            //更新密码
             String md5Password  = MD5Util.MD5EncodeUtf8(passwordNew);
             int rowCount = userMapper.updatePasswordByUsername(username,md5Password);
 
@@ -147,7 +150,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         user.setPassword(MD5Util.MD5EncodeUtf8(passwordNew));
-        int updateCount = userMapper.updateByPrimaryKeySelective(user);
+        int updateCount = userMapper.updateByPrimaryKeySelective(user);//根据主键选择性更新
         if(updateCount > 0){
             return ServerResponse.createBySuccessMessage("密码更新成功");
         }

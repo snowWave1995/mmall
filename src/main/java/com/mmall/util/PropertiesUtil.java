@@ -17,6 +17,7 @@ public class PropertiesUtil {
 
     private static Properties props;
 
+    //静态代码块优于普通代码块，普通代码块优于构造器
     static {
         String fileName = "mmall.properties";
         props = new Properties();

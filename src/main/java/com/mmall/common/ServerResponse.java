@@ -9,13 +9,14 @@ import java.io.Serializable;
  * Created by snowWave.
  */
 @JsonSerialize(include =  JsonSerialize.Inclusion.NON_NULL)
-//保证序列化json的时候,如果是null的对象,key也会消失
+//保证序列化json的时候,如果是null的对象,key也会消失,登录等失败时，不返回date,所以不能序列化
 public class ServerResponse<T> implements Serializable {
 
     private int status;
     private String msg;
-    private T data;
+    private T data;//返回泛型，可返回任意类型值
 
+    //构造器均为私有，为了封装public方法时，调用简单优雅
     private ServerResponse(int status){
         this.status = status;
     }
@@ -35,6 +36,7 @@ public class ServerResponse<T> implements Serializable {
         this.msg = msg;
     }
 
+    //通过枚举类封装响应状态码
     @JsonIgnore
     //使之不在json序列化结果当中
     public boolean isSuccess(){
