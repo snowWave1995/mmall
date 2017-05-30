@@ -80,9 +80,11 @@ public class Const {
                     return orderStatusEnum;
                 }
             }
-            throw new RuntimeException("么有找到对应的枚举");
+            throw new RuntimeException("没有找到对应的枚举");
         }
     }
+
+
     public interface  AlipayCallback{
         String TRADE_STATUS_WAIT_BUYER_PAY = "WAIT_BUYER_PAY";
         String TRADE_STATUS_TRADE_SUCCESS = "TRADE_SUCCESS";
@@ -112,6 +114,7 @@ public class Const {
         }
     }
 
+    //支付方式
     public enum PaymentTypeEnum{
         ONLINE_PAY(1,"在线支付");
 

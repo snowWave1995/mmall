@@ -373,28 +373,15 @@ public class OrderServiceImpl implements IOrderService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * 支付
+     * @param orderNo 订单号
+     * @param userId 用户ID
+     * @param path 生成二维码传到服务器的路径
+     * @return
+     */
     public ServerResponse pay(Long orderNo,Integer userId,String path){
-        Map<String ,String> resultMap = Maps.newHashMap();
+        Map<String ,String> resultMap = Maps.newHashMap(); //把订单号和二维码地址返回
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if(order == null){
             return ServerResponse.createByErrorMessage("用户没有该订单");
@@ -450,7 +437,8 @@ public class OrderServiceImpl implements IOrderService {
         // 商品明细列表，需填写购买商品详细信息，
         List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
 
-        List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(orderNo,userId);
+        List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(orderNo,userId);//获取订单中所有商品
+        //逐个添加订单中每种商品 newInstance入参有四个：ID 名字 单价 数量
         for(OrderItem orderItem : orderItemList){
             GoodsDetail goods = GoodsDetail.newInstance(orderItem.getProductId().toString(), orderItem.getProductName(),
                     BigDecimalUtil.mul(orderItem.getCurrentUnitPrice().doubleValue(),new Double(100).doubleValue()).longValue(),
@@ -464,7 +452,7 @@ public class OrderServiceImpl implements IOrderService {
                 .setUndiscountableAmount(undiscountableAmount).setSellerId(sellerId).setBody(body)
                 .setOperatorId(operatorId).setStoreId(storeId).setExtendParams(extendParams)
                 .setTimeoutExpress(timeoutExpress)
-                .setNotifyUrl(PropertiesUtil.getProperty("alipay.callback.url"))//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
+                .setNotifyUrl(PropertiesUtil.getProperty("lalipay.callback.ur"))//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
                 .setGoodsDetailList(goodsDetailList);
 
 
@@ -478,15 +466,15 @@ public class OrderServiceImpl implements IOrderService {
 
                 File folder = new File(path);
                 if(!folder.exists()){
-                    folder.setWritable(true);
+                    folder.setWritable(true);//给写权限
                     folder.mkdirs();
                 }
 
                 // 需要修改为运行机器上的路径
-                //细节细节细节
-                String qrPath = String.format(path+"/qr-%s.png",response.getOutTradeNo());
-                String qrFileName = String.format("qr-%s.png",response.getOutTradeNo());
-                ZxingUtils.getQRCodeImge(response.getQrCode(), 256, qrPath);
+                //二维码生成！！ 订单号生成路径，路径生成二维码，按照路径和新文件名把它传到FTP服务器上
+                String qrPath = String.format(path+"/qr-%s.png",response.getOutTradeNo());//二维码路径
+                String qrFileName = String.format("qr-%s.png",response.getOutTradeNo());//二维码文件名
+                ZxingUtils.getQRCodeImge(response.getQrCode(), 256, qrPath);//支付宝的从groovy方法
 
                 File targetFile = new File(path,qrFileName);
                 try {
@@ -526,27 +514,35 @@ public class OrderServiceImpl implements IOrderService {
     }
 
 
+    /**
+     * 验证回调参数是否正确
+     * @param params
+     * @return
+     */
     public ServerResponse aliCallback(Map<String,String> params){
-        Long orderNo = Long.parseLong(params.get("out_trade_no"));
-        String tradeNo = params.get("trade_no");
-        String tradeStatus = params.get("trade_status");
-        Order order = orderMapper.selectByOrderNo(orderNo);
+        Long orderNo = Long.parseLong(params.get("out_trade_no"));//订单号
+        String tradeNo = params.get("trade_no");//支付宝的交易号
+        String tradeStatus = params.get("trade_status");//交易状态
+        Order order = orderMapper.selectByOrderNo(orderNo);//获取内部订单
         if(order == null){
             return ServerResponse.createByErrorMessage("非mmall的订单,回调忽略");
         }
+        //判断订单是否已经支付过了
         if(order.getStatus() >= Const.OrderStatusEnum.PAID.getCode()){
             return ServerResponse.createBySuccess("支付宝重复调用");
         }
+
+        //判断调用状态
         if(Const.AlipayCallback.TRADE_STATUS_TRADE_SUCCESS.equals(tradeStatus)){
-            order.setPaymentTime(DateTimeUtil.strToDate(params.get("gmt_payment")));
-            order.setStatus(Const.OrderStatusEnum.PAID.getCode());
+            order.setPaymentTime(DateTimeUtil.strToDate(params.get("gmt_payment")));//付款时间
+            order.setStatus(Const.OrderStatusEnum.PAID.getCode());//变更支付状态
             orderMapper.updateByPrimaryKeySelective(order);
         }
 
         PayInfo payInfo = new PayInfo();
         payInfo.setUserId(order.getUserId());
         payInfo.setOrderNo(order.getOrderNo());
-        payInfo.setPayPlatform(Const.PayPlatformEnum.ALIPAY.getCode());
+        payInfo.setPayPlatform(Const.PayPlatformEnum.ALIPAY.getCode());//指定支付方式
         payInfo.setPlatformNumber(tradeNo);
         payInfo.setPlatformStatus(tradeStatus);
 
@@ -556,9 +552,12 @@ public class OrderServiceImpl implements IOrderService {
     }
 
 
-
-
-
+    /**
+     * 轮询获取支付状态，是否成功
+     * @param userId
+     * @param orderNo
+     * @return
+     */
     public ServerResponse queryOrderPayStatus(Integer userId,Long orderNo){
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if(order == null){
@@ -634,29 +633,6 @@ public class OrderServiceImpl implements IOrderService {
         }
         return ServerResponse.createByErrorMessage("订单不存在");
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

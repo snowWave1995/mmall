@@ -28,9 +28,15 @@ public class ShippingController {
     private IShippingService iShippingService;
 
 
+    /**
+     * 增加地址
+     * @param session
+     * @param shipping
+     * @return
+     */
     @RequestMapping("add.do")
     @ResponseBody
-    public ServerResponse add(HttpSession session,Shipping shipping){
+    public ServerResponse add(HttpSession session,Shipping shipping){//SpringMVC的对象绑定
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if(user ==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
@@ -39,6 +45,12 @@ public class ShippingController {
     }
 
 
+    /**
+     * 删除地址
+     * @param session
+     * @param shippingId
+     * @return
+     */
     @RequestMapping("del.do")
     @ResponseBody
     public ServerResponse del(HttpSession session,Integer shippingId){
@@ -49,6 +61,13 @@ public class ShippingController {
         return iShippingService.del(user.getId(),shippingId);
     }
 
+
+    /**
+     * 更新地址
+     * @param session
+     * @param shipping
+     * @return
+     */
     @RequestMapping("update.do")
     @ResponseBody
     public ServerResponse update(HttpSession session,Shipping shipping){
@@ -60,6 +79,12 @@ public class ShippingController {
     }
 
 
+    /**
+     * 选择地址作为默认地址
+     * @param session
+     * @param shippingId
+     * @return
+     */
     @RequestMapping("select.do")
     @ResponseBody
     public ServerResponse<Shipping> select(HttpSession session,Integer shippingId){
@@ -71,6 +96,13 @@ public class ShippingController {
     }
 
 
+    /**
+     * 查询地址列表+分页
+     * @param pageNum
+     * @param pageSize
+     * @param session
+     * @return
+     */
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse<PageInfo> list(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
@@ -82,18 +114,6 @@ public class ShippingController {
         }
         return iShippingService.list(user.getId(),pageNum,pageSize);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
