@@ -23,6 +23,8 @@ import java.util.Map;
 
 /**
  * Created by zhangfuqiang on 2018/2/6.
+ *
+ * 通过过滤器拦截请求之后，重置session有效时间
  */
 @Slf4j
 public class AuthorityInterceptor implements HandlerInterceptor{
