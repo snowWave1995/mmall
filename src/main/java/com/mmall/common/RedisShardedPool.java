@@ -53,7 +53,7 @@ public class RedisShardedPool {
 
         jedisShardInfoList.add(info1);
         jedisShardInfoList.add(info2);
-
+        //分片策略，redis提供两种 murmur_hash和md5
         pool = new ShardedJedisPool(config,jedisShardInfoList, Hashing.MURMUR_HASH, Sharded.DEFAULT_KEY_TAG_PATTERN);
     }
 
