@@ -49,8 +49,8 @@ public class UserController {
             session.setAttribute(Const.CURRENT_USER,response.getData());
 
             CookieUtil.writeLoginToken(httpServletresponse,session.getId());
-            //把原来放在session里的信息放到redis里，设置过期时间半小时
-            RedisPoolUtil.setEx(session.getId(), JsonUtil.obj2String(response.getData()),Const.RedisCacheExtime.REDIS_SESSION_EXTIME);
+            //把原来放在session里的信息放到redis里(这里是redis分片集群中，即两台redis中)，设置过期时间半小时
+            RedisShardedPoolUtil.setEx(session.getId(), JsonUtil.obj2String(response.getData()),Const.RedisCacheExtime.REDIS_SESSION_EXTIME);
 
         }
         return response;
